@@ -1,0 +1,185 @@
+
+{% extends "base.html" %}
+
+{% block title %}الرئيسية - تطبيق الدروس الإسلامية{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="welcome-card bg-gradient-primary text-white p-4 rounded mb-4">
+            <h2><i class="fas fa-mosque"></i> مرحباً {{ session.username }}</h2>
+            <p class="mb-0">
+                {% if session.user_type == 'developer' %}
+                    أهلاً بك أيها المطور ليث - لديك صلاحيات كاملة
+                {% elif session.user_type == 'main_teacher' %}
+                    أهلاً بك أستاذ معتصم - مدير التطبيق
+                {% elif session.user_type == 'teacher' %}
+                    أهلاً بك أيها الأستاذ - لديك صلاحيات التدريس
+                {% elif session.user_type == 'vip' %}
+                    أهلاً بك - حساب مميز
+                {% else %}
+                    أهلاً بك أيها الطالب - استمتع بالتعلم
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100 hover-card">
+            <div class="card-body">
+                <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">الدروس الإسلامية</h5>
+                <p class="card-text">تصفح الدروس المتاحة واختبر معلوماتك</p>
+                <a href="{{ url_for('lessons') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> الذهاب للدروس
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100 hover-card">
+            <div class="card-body">
+                <i class="fas fa-book-open fa-3x text-success mb-3"></i>
+                <h5 class="card-title">القرآن الكريم</h5>
+                <p class="card-text">اقرأ القرآن واستمع للتلاوة</p>
+                <a href="{{ url_for('quran') }}" class="btn btn-success">
+                    <i class="fas fa-arrow-left"></i> قراءة القرآن
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100 hover-card">
+            <div class="card-body">
+                <i class="fas fa-comments fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">المحادثة</h5>
+                <p class="card-text">تواصل مع الأساتذة والطلاب</p>
+                <a href="{{ url_for('chat') }}" class="btn btn-warning">
+                    <i class="fas fa-arrow-left"></i> بدء المحادثة
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100 hover-card">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                <h5 class="card-title">التقدم الشخصي</h5>
+                <p class="card-text">تابع إنجازاتك وتقدمك</p>
+                <a href="#" class="btn btn-info" onclick="showProgress()">
+                    <i class="fas fa-arrow-left"></i> عرض التقدم
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if session.user_type in ['developer', 'main_teacher', 'teacher'] %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h3><i class="fas fa-cogs"></i> أدوات الإدارة</h3>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-video fa-2x text-danger mb-2"></i>
+                <h6 class="card-title">البث المباشر</h6>
+                <a href="{{ url_for('live_session') }}" class="btn btn-danger btn-sm">
+                    بدء جلسة
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-secondary mb-2"></i>
+                <h6 class="card-title">إدارة الطلاب</h6>
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary btn-sm">
+                    الإدارة
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-bar fa-2x text-dark mb-2"></i>
+                <h6 class="card-title">الإحصائيات</h6>
+                <a href="#" class="btn btn-dark btn-sm" onclick="showStats()">
+                    عرض التقارير
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Progress Modal -->
+<div class="modal fade" id="progressModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تقدمك الشخصي</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="progressContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">جاري التحميل...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showProgress() {
+    $('#progressModal').modal('show');
+    // Load progress data via AJAX
+    setTimeout(() => {
+        $('#progressContent').html(`
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>الدروس المكتملة</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-success" style="width: 65%">65%</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6>صفحات القرآن المقروءة</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-info" style="width: 42%">42%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>متوسط درجات الاختبارات</h6>
+                    <h4 class="text-success">85%</h4>
+                </div>
+                <div class="col-md-6">
+                    <h6>أيام الحضور هذا الشهر</h6>
+                    <h4 class="text-primary">22 يوم</h4>
+                </div>
+            </div>
+        `);
+    }, 1000);
+}
+
+function showStats() {
+    alert('قريباً: عرض الإحصائيات المتقدمة');
+}
+</script>
+{% endblock %}

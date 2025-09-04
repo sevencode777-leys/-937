@@ -1,0 +1,253 @@
+
+{% extends "base.html" %}
+
+{% block title %}الدروس الإسلامية{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-book"></i> الدروس الإسلامية</h2>
+        <p class="text-muted">تصفح الدروس المتاحة في مختلف علوم الإسلام</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" id="searchLessons" placeholder="البحث في الدروس...">
+            <button class="btn btn-primary" type="button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <select class="form-select" id="topicFilter">
+            <option value="">جميع المواضيع</option>
+            <option value="فقه">الفقه</option>
+            <option value="حديث">الحديث</option>
+            <option value="تفسير">التفسير</option>
+            <option value="سيرة">السيرة النبوية</option>
+            <option value="عقيدة">العقيدة</option>
+        </select>
+    </div>
+</div>
+
+<div class="row" id="lessonsContainer">
+    <!-- Sample lessons -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 hover-card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-book-open"></i> أركان الإسلام الخمسة</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">تعلم عن الأركان الخمسة للإسلام وأهميتها في حياة المسلم</p>
+                <div class="mb-2">
+                    <span class="badge bg-secondary">عقيدة</span>
+                    <span class="badge bg-info">50 سؤال</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" style="width: 0%">0%</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/lesson/1" class="btn btn-primary btn-sm">
+                    <i class="fas fa-play"></i> بدء الدرس
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="showPreview(1)">
+                    <i class="fas fa-eye"></i> معاينة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 hover-card">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-mosque"></i> الصلاة وأحكامها</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">دراسة شاملة لأحكام الصلاة وشروطها وأركانها</p>
+                <div class="mb-2">
+                    <span class="badge bg-secondary">فقه</span>
+                    <span class="badge bg-info">50 سؤال</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" style="width: 0%">0%</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/lesson/2" class="btn btn-primary btn-sm">
+                    <i class="fas fa-play"></i> بدء الدرس
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="showPreview(2)">
+                    <i class="fas fa-eye"></i> معاينة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 hover-card">
+            <div class="card-header bg-warning text-white">
+                <h6 class="mb-0"><i class="fas fa-heart"></i> السيرة النبوية</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">تعرف على حياة النبي محمد صلى الله عليه وسلم</p>
+                <div class="mb-2">
+                    <span class="badge bg-secondary">سيرة</span>
+                    <span class="badge bg-info">50 سؤال</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" style="width: 0%">0%</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/lesson/3" class="btn btn-primary btn-sm">
+                    <i class="fas fa-play"></i> بدء الدرس
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="showPreview(3)">
+                    <i class="fas fa-eye"></i> معاينة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 hover-card">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-scroll"></i> الحديث الشريف</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">دراسة الأحاديث النبوية الشريفة وعلوم الحديث</p>
+                <div class="mb-2">
+                    <span class="badge bg-secondary">حديث</span>
+                    <span class="badge bg-info">50 سؤال</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" style="width: 0%">0%</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/lesson/4" class="btn btn-primary btn-sm">
+                    <i class="fas fa-play"></i> بدء الدرس
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="showPreview(4)">
+                    <i class="fas fa-eye"></i> معاينة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 hover-card">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="fas fa-book-reader"></i> التفسير</h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">فهم معاني القرآن الكريم وتفسير آياته</p>
+                <div class="mb-2">
+                    <span class="badge bg-secondary">تفسير</span>
+                    <span class="badge bg-info">50 سؤال</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" style="width: 0%">0%</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/lesson/5" class="btn btn-primary btn-sm">
+                    <i class="fas fa-play"></i> بدء الدرس
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="showPreview(5)">
+                    <i class="fas fa-eye"></i> معاينة
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">معاينة الدرس</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Preview content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showPreview(lessonId) {
+    $('#previewModal').modal('show');
+    $('#previewContent').html(`
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">جاري التحميل...</span>
+            </div>
+        </div>
+    `);
+    
+    setTimeout(() => {
+        $('#previewContent').html(`
+            <h6>نظرة عامة على الدرس</h6>
+            <p>هذا الدرس يغطي المواضيع التالية:</p>
+            <ul>
+                <li>المقدمة والتعريفات</li>
+                <li>الشرح المفصل مع الأمثلة</li>
+                <li>الفيديو التعليمي</li>
+                <li>اختبار شامل مكون من 50 سؤال</li>
+            </ul>
+            <div class="alert alert-info">
+                <i class="fas fa-clock"></i> مدة الدرس المتوقعة: 45 دقيقة
+            </div>
+        `);
+    }, 1000);
+}
+
+// Search functionality
+document.getElementById('searchLessons').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('#lessonsContainer .card');
+    
+    cards.forEach(card => {
+        const title = card.querySelector('h6').textContent.toLowerCase();
+        const description = card.querySelector('.card-text').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+            card.parentElement.style.display = 'block';
+        } else {
+            card.parentElement.style.display = 'none';
+        }
+    });
+});
+
+// Topic filter
+document.getElementById('topicFilter').addEventListener('change', function(e) {
+    const selectedTopic = e.target.value;
+    const cards = document.querySelectorAll('#lessonsContainer .card');
+    
+    cards.forEach(card => {
+        if (selectedTopic === '') {
+            card.parentElement.style.display = 'block';
+        } else {
+            const badges = card.querySelectorAll('.badge');
+            let hasTopicBadge = false;
+            
+            badges.forEach(badge => {
+                if (badge.textContent === selectedTopic) {
+                    hasTopicBadge = true;
+                }
+            });
+            
+            card.parentElement.style.display = hasTopicBadge ? 'block' : 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

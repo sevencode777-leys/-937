@@ -1,0 +1,48 @@
+
+{% extends "base.html" %}
+
+{% block title %}إنشاء حساب - تطبيق الدروس الإسلامية{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h3><i class="fas fa-user-plus"></i> إنشاء حساب جديد</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">اسم المستخدم</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="special_code" class="form-label">الرمز الخاص (اختياري)</label>
+                        <input type="text" class="form-control" id="special_code" name="special_code" 
+                               placeholder="أدخل الرمز الخاص إذا كنت أستاذ أو مطور">
+                        <div class="form-text">
+                            <small>
+                                يمكن للأساتذة والمطورين إدخال رمزهم الخاص هنا للحصول على صلاحيات إضافية.
+                            </small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mb-3">
+                        <i class="fas fa-user-plus"></i> إنشاء الحساب
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p>لديك حساب بالفعل؟</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

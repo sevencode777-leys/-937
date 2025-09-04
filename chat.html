@@ -1,0 +1,172 @@
+
+{% extends "base.html" %}
+
+{% block title %}المحادثة - تطبيق الدروس الإسلامية{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-comments"></i> المحادثة</h2>
+        <p class="text-muted">تواصل مع الأساتذة والطلاب الآخرين</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-users"></i> الغرفة العامة</h5>
+                <span class="badge bg-light text-dark">
+                    <span id="onlineCount">5</span> متصل
+                </span>
+            </div>
+            <div class="chat-container" id="chatMessages">
+                <div class="message received">
+                    <div class="message-header">
+                        <strong>الأستاذ معتصم</strong>
+                        <small class="text-muted">10:30 ص</small>
+                    </div>
+                    <div class="message-text">مرحباً بكم جميعاً في الغرفة العامة</div>
+                </div>
+                <div class="message teacher">
+                    <div class="message-header">
+                        <strong>الأستاذ أحمد</strong>
+                        <small class="text-muted">10:35 ص</small>
+                    </div>
+                    <div class="message-text">لا تنسوا مراجعة درس اليوم</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" placeholder="اكتب رسالتك هنا..." 
+                           onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i> إرسال
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h6><i class="fas fa-users"></i> المتصلون الآن</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-crown text-warning"></i> الأستاذ معتصم</span>
+                        <span class="badge bg-success rounded-pill">متصل</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user-tie text-primary"></i> الأستاذ أحمد</span>
+                        <span class="badge bg-success rounded-pill">متصل</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user text-secondary"></i> أحمد محمد</span>
+                        <span class="badge bg-success rounded-pill">متصل</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user text-secondary"></i> فاطمة علي</span>
+                        <span class="badge bg-warning rounded-pill">غائب</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if session.user_type in ['developer', 'main_teacher', 'teacher'] %}
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h6><i class="fas fa-tools"></i> أدوات الأستاذ</h6>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-danger btn-sm w-100 mb-2" onclick="sendAnnouncement()">
+                    <i class="fas fa-bullhorn"></i> إعلان للجميع
+                </button>
+                <button class="btn btn-warning btn-sm w-100 mb-2" onclick="clearChat()">
+                    <i class="fas fa-trash"></i> مسح الدردشة
+                </button>
+                <button class="btn btn-info btn-sm w-100" onclick="muteStudent()">
+                    <i class="fas fa-volume-mute"></i> كتم طالب
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Announcement Modal -->
+<div class="modal fade" id="announcementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إرسال إعلان</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="announcementText" rows="4" placeholder="اكتب الإعلان هنا..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" onclick="publishAnnouncement()">
+                    <i class="fas fa-bullhorn"></i> نشر الإعلان
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (message === '') return;
+    
+    chatSystem.sendMessage(message, '{{ session.user_type }}');
+    input.value = '';
+}
+
+function sendAnnouncement() {
+    $('#announcementModal').modal('show');
+}
+
+function publishAnnouncement() {
+    const text = document.getElementById('announcementText').value.trim();
+    if (text === '') return;
+    
+    const announcementMessage = {
+        id: Date.now(),
+        text: `📢 إعلان: ${text}`,
+        sender: '{{ session.username }}',
+        timestamp: new Date(),
+        type: 'announcement'
+    };
+    
+    chatSystem.displayMessage(announcementMessage);
+    $('#announcementModal').modal('hide');
+    document.getElementById('announcementText').value = '';
+    showNotification('تم نشر الإعلان', 'success');
+}
+
+function clearChat() {
+    if (confirm('هل أنت متأكد من مسح جميع الرسائل؟')) {
+        document.getElementById('chatMessages').innerHTML = '';
+        showNotification('تم مسح المحادثة', 'info');
+    }
+}
+
+function muteStudent() {
+    showNotification('تم كتم الطالب', 'warning');
+}
+
+// Update online count periodically
+setInterval(() => {
+    const count = Math.floor(Math.random() * 3) + 3;
+    document.getElementById('onlineCount').textContent = count;
+}, 10000);
+</script>
+{% endblock %}

@@ -1,0 +1,229 @@
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --success-color: #16a34a;
+    --warning-color: #d97706;
+    --danger-color: #dc2626;
+    --info-color: #0891b2;
+    --light-color: #f8fafc;
+    --dark-color: #1e293b;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+}
+
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.welcome-card {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --primary-color: #3b82f6;
+    --light-color: #1e293b;
+    --dark-color: #f8fafc;
+}
+
+[data-theme="dark"] body {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .card {
+    background-color: #2d3748;
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .navbar {
+    background-color: #1a202c !important;
+}
+
+/* Quran specific styles */
+.quran-page {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-family: 'Amiri', serif;
+    font-size: 18px;
+    line-height: 2;
+    text-align: justify;
+}
+
+.audio-controls {
+    position: sticky;
+    top: 80px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* Chat styles */
+.chat-container {
+    height: 500px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 70%;
+}
+
+.message.sent {
+    background: var(--primary-color);
+    color: white;
+    margin-left: auto;
+}
+
+.message.received {
+    background: white;
+    border: 1px solid #dee2e6;
+}
+
+.message.teacher {
+    background: var(--warning-color);
+    color: white;
+}
+
+/* Live session styles */
+.video-container {
+    position: relative;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+}
+
+.video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 20px;
+    color: white;
+}
+
+.whiteboard {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    background: white;
+    cursor: crosshair;
+}
+
+/* Progress bars */
+.progress {
+    height: 12px;
+    border-radius: 6px;
+    background: #e2e8f0;
+}
+
+.progress-bar {
+    border-radius: 6px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .welcome-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .card-body i.fa-3x {
+        font-size: 2rem !important;
+    }
+    
+    .chat-container {
+        height: 400px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar, .btn, .modal {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+}

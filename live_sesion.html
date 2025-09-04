@@ -1,0 +1,237 @@
+
+{% extends "base.html" %}
+
+{% block title %}البث المباشر - تطبيق الدروس الإسلامية{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-video"></i> البث المباشر</h2>
+        <p class="text-muted">أدر جلسات تعليمية مباشرة مع الطلاب</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-broadcast-tower"></i> الجلسة المباشرة</h5>
+                <span class="badge bg-light text-dark" id="sessionStatus">غير نشطة</span>
+            </div>
+            <div class="video-container">
+                <div class="text-center d-flex align-items-center justify-content-center" 
+                     style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="text-white">
+                        <i class="fas fa-video fa-4x mb-3"></i>
+                        <h4>الكاميرا غير نشطة</h4>
+                        <p>انقر على "بدء البث" لبدء الجلسة</p>
+                    </div>
+                </div>
+                <div class="video-controls">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button class="btn btn-success" id="startStreamBtn" onclick="startLiveSession()">
+                                <i class="fas fa-play"></i> بدء البث
+                            </button>
+                            <button class="btn btn-danger" id="endStreamBtn" style="display: none;" onclick="endLiveSession()">
+                                <i class="fas fa-stop"></i> إيقاف البث
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-light btn-sm" onclick="toggleMic()">
+                                <i class="fas fa-microphone" id="micIcon"></i>
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="toggleCamera()">
+                                <i class="fas fa-video" id="cameraIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="fas fa-chalkboard"></i> السبورة الذكية</h6>
+                <div>
+                    <button class="btn btn-light btn-sm" onclick="liveSession.clearWhiteboard()">
+                        <i class="fas fa-eraser"></i> مسح
+                    </button>
+                    <select class="btn btn-light btn-sm" id="penColor">
+                        <option value="#000">أسود</option>
+                        <option value="#f00">أحمر</option>
+                        <option value="#00f">أزرق</option>
+                        <option value="#0f0">أخضر</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <canvas id="whiteboard" width="800" height="400" class="whiteboard w-100"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h6><i class="fas fa-users"></i> المشاركون (<span id="participantCount">0</span>)</h6>
+            </div>
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                <div id="participantsList">
+                    <p class="text-muted text-center">لا يوجد مشاركون حالياً</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-white">
+                <h6><i class="fas fa-cog"></i> إعدادات الجلسة</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">عنوان الجلسة</label>
+                    <input type="text" class="form-control" id="sessionTitle" value="درس في الفقه">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">وصف الجلسة</label>
+                    <textarea class="form-control" id="sessionDescription" rows="3">درس مباشر عن أحكام الصلاة</textarea>
+                </div>
+                <button class="btn btn-warning btn-sm w-100" onclick="saveSessionSettings()">
+                    <i class="fas fa-save"></i> حفظ الإعدادات
+                </button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h6><i class="fas fa-comment-dots"></i> الدردشة المباشرة</h6>
+            </div>
+            <div class="chat-container" style="height: 250px;" id="liveChatMessages">
+                <!-- Live chat messages -->
+            </div>
+            <div class="card-footer">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="liveChatInput" placeholder="رسالة سريعة..." 
+                           onkeypress="if(event.key==='Enter') sendLiveMessage()">
+                    <button class="btn btn-primary" onclick="sendLiveMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let sessionActive = false;
+let micMuted = false;
+let cameraOff = false;
+
+function startLiveSession() {
+    sessionActive = true;
+    document.getElementById('sessionStatus').textContent = 'نشطة';
+    document.getElementById('sessionStatus').className = 'badge bg-success text-white';
+    document.getElementById('startStreamBtn').style.display = 'none';
+    document.getElementById('endStreamBtn').style.display = 'inline-block';
+    
+    liveSession.startSession();
+    updateParticipants();
+    
+    // Simulate video stream
+    const videoContainer = document.querySelector('.video-container > div');
+    videoContainer.innerHTML = `
+        <div style="height: 400px; background: #000; position: relative; display: flex; align-items: center; justify-content: center;">
+            <div class="text-white text-center">
+                <i class="fas fa-video fa-3x mb-3"></i>
+                <h5>البث المباشر نشط</h5>
+                <p>الآن يمكن للطلاب مشاهدة الدرس</p>
+            </div>
+            <div class="position-absolute top-0 start-0 m-3">
+                <span class="badge bg-danger">🔴 مباشر</span>
+            </div>
+        </div>
+    `;
+}
+
+function endLiveSession() {
+    sessionActive = false;
+    document.getElementById('sessionStatus').textContent = 'غير نشطة';
+    document.getElementById('sessionStatus').className = 'badge bg-light text-dark';
+    document.getElementById('startStreamBtn').style.display = 'inline-block';
+    document.getElementById('endStreamBtn').style.display = 'none';
+    
+    liveSession.endSession();
+    document.getElementById('participantCount').textContent = '0';
+    document.getElementById('participantsList').innerHTML = '<p class="text-muted text-center">لا يوجد مشاركون حالياً</p>';
+}
+
+function toggleMic() {
+    micMuted = !micMuted;
+    const icon = document.getElementById('micIcon');
+    icon.className = micMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone';
+    showNotification(micMuted ? 'تم كتم الميكروفون' : 'تم تشغيل الميكروفون', 'info');
+}
+
+function toggleCamera() {
+    cameraOff = !cameraOff;
+    const icon = document.getElementById('cameraIcon');
+    icon.className = cameraOff ? 'fas fa-video-slash' : 'fas fa-video';
+    showNotification(cameraOff ? 'تم إيقاف الكاميرا' : 'تم تشغيل الكاميرا', 'info');
+}
+
+function updateParticipants() {
+    if (!sessionActive) return;
+    
+    const participants = [
+        { name: 'أحمد محمد', type: 'student' },
+        { name: 'فاطمة علي', type: 'student' },
+        { name: 'محمد صالح', type: 'student' },
+        { name: '{{ session.username }}', type: '{{ session.user_type }}' }
+    ];
+    
+    const count = participants.length;
+    document.getElementById('participantCount').textContent = count;
+    
+    const list = document.getElementById('participantsList');
+    list.innerHTML = participants.map(p => `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span>
+                <i class="fas ${p.type === 'student' ? 'fa-user' : 'fa-user-tie'}"></i>
+                ${p.name}
+            </span>
+            <span class="badge bg-success rounded-pill">متصل</span>
+        </div>
+    `).join('');
+}
+
+function saveSessionSettings() {
+    showNotification('تم حفظ إعدادات الجلسة', 'success');
+}
+
+function sendLiveMessage() {
+    const input = document.getElementById('liveChatInput');
+    const message = input.value.trim();
+    
+    if (message === '') return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message sent';
+    messageDiv.innerHTML = `
+        <div class="message-header">
+            <strong>أنت</strong>
+            <small class="text-muted">${new Date().toLocaleTimeString('ar-SA')}</small>
+        </div>
+        <div class="message-text">${message}</div>
+    `;
+    
+    document.getElementById('liveChatMessages').appendChild(messageDiv);
+    input.value = '';
+    
+    // Scroll to bottom
+    const container = document.getElementById('liveChatMessages');
+    container.scrollTop = container.scrollHeight;
+}
+</script>
+{% endblock %}

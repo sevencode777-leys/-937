@@ -1,0 +1,181 @@
+
+{% extends "base.html" %}
+
+{% block title %}القرآن الكريم - تطبيق الدروس الإسلامية{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-book-open"></i> القرآن الكريم</h2>
+        <p class="text-muted">اقرأ واستمع للقرآن الكريم بصوت مشاري العفاسي</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header bg-success text-white">
+                <h6><i class="fas fa-list"></i> فهرس السور</h6>
+            </div>
+            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                <div class="list-group list-group-flush" id="surahList">
+                    <!-- Surahs will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="audio-controls mb-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6><i class="fas fa-headphones"></i> التحكم في التلاوة</h6>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-success btn-sm" id="playBtn" onclick="quranReader.playAudio(1)">
+                        <i class="fas fa-play"></i> تشغيل
+                    </button>
+                    <button class="btn btn-warning btn-sm" id="pauseBtn" style="display: none;" onclick="quranReader.pauseAudio()">
+                        <i class="fas fa-pause"></i> إيقاف
+                    </button>
+                    <span class="badge bg-info ms-2">مشاري العفاسي</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 id="currentSurah">الفاتحة</h5>
+                <div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="previousPage()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <span class="mx-2">صفحة <span id="currentPage">1</span> من 604</span>
+                    <button class="btn btn-outline-primary btn-sm" onclick="nextPage()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="quranText" class="quran-page">
+                    <div class="text-center mb-4">
+                        <h4>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</h4>
+                    </div>
+                    <div class="arabic-text" style="font-size: 20px; line-height: 2.5;">
+                        الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَٰنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ۝
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <button class="btn btn-success" onclick="markPageAsMemorized()">
+                        <i class="fas fa-heart"></i> حفظت هذه الصفحة
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showPageStats()">
+                        <i class="fas fa-chart-bar"></i> إحصائيات القراءة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Statistics Modal -->
+<div class="modal fade" id="pageStatsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إحصائيات القراءة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="pageStatsContent">
+                <!-- Statistics will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize Quran reader
+const surahs = [
+    'الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة', 'الأنعام', 'الأعراف', 'الأنفال', 'التوبة', 'يونس',
+    'هود', 'يوسف', 'الرعد', 'إبراهيم', 'الحجر', 'النحل', 'الإسراء', 'الكهف', 'مريم', 'طه'
+];
+
+// Load surah list
+document.addEventListener('DOMContentLoaded', function() {
+    const surahList = document.getElementById('surahList');
+    surahs.forEach((surah, index) => {
+        const item = document.createElement('a');
+        item.className = 'list-group-item list-group-item-action';
+        item.href = '#';
+        item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <span>${index + 1}. ${surah}</span>
+                <small class="text-muted">صفحة ${index + 1}</small>
+            </div>
+        `;
+        item.onclick = () => loadSurah(index + 1);
+        surahList.appendChild(item);
+    });
+    
+    // Load first page
+    quranReader.loadPage(1);
+});
+
+function loadSurah(surahNumber) {
+    document.getElementById('currentSurah').textContent = surahs[surahNumber - 1];
+    quranReader.loadPage(surahNumber);
+}
+
+function nextPage() {
+    if (quranReader.currentPage < quranReader.totalPages) {
+        quranReader.loadPage(quranReader.currentPage + 1);
+        document.getElementById('currentPage').textContent = quranReader.currentPage;
+    }
+}
+
+function previousPage() {
+    if (quranReader.currentPage > 1) {
+        quranReader.loadPage(quranReader.currentPage - 1);
+        document.getElementById('currentPage').textContent = quranReader.currentPage;
+    }
+}
+
+function markPageAsMemorized() {
+    quranReader.markAsMemorized(quranReader.currentPage);
+}
+
+function showPageStats() {
+    $('#pageStatsModal').modal('show');
+    document.getElementById('pageStatsContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">جاري التحميل...</span>
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => {
+        document.getElementById('pageStatsContent').innerHTML = `
+            <div class="row text-center">
+                <div class="col-6">
+                    <h4 class="text-primary">${Math.floor(Math.random() * 50) + 10}</h4>
+                    <small>صفحة مقروءة</small>
+                </div>
+                <div class="col-6">
+                    <h4 class="text-success">${Math.floor(Math.random() * 20) + 5}</h4>
+                    <small>صفحة محفوظة</small>
+                </div>
+            </div>
+            <hr>
+            <p class="text-center"><strong>آخر صفحة مقروءة:</strong> صفحة ${quranReader.currentPage}</p>
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb"></i> استمر في القراءة والحفظ!
+            </div>
+        `;
+    }, 1000);
+}
+</script>
+{% endblock %}

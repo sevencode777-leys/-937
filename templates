@@ -1,0 +1,167 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ lesson[1] if lesson else 'الدرس' }} - تطبيق الدروس الإسلامية{% endblock %}
+
+{% block content %}
+{% if lesson %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('lessons') }}">الدروس</a></li>
+                <li class="breadcrumb-item active">{{ lesson[1] }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3><i class="fas fa-book-open"></i> {{ lesson[1] }}</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ lesson[2] }}</p>
+                
+                {% if lesson[4] %}
+                <div class="mb-4">
+                    <h5><i class="fas fa-video"></i> الفيديو التعليمي</h5>
+                    <div class="ratio ratio-16x9">
+                        <iframe src="{{ lesson[4] }}" allowfullscreen></iframe>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="lesson-content">
+                    <h5><i class="fas fa-file-text"></i> محتوى الدرس</h5>
+                    <div class="p-3 bg-light rounded">
+                        {{ lesson[3] | safe if lesson[3] else 'محتوى الدرس سيكون متاحاً قريباً' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if questions %}
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h4><i class="fas fa-question-circle"></i> الاختبار</h4>
+            </div>
+            <div class="card-body">
+                <p>اختبر معلوماتك حول هذا الدرس</p>
+                <button class="btn btn-warning btn-lg" onclick="startLessonQuiz()">
+                    <i class="fas fa-play"></i> بدء الاختبار ({{ questions | length }} سؤال)
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> معلومات الدرس</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>الموضوع:</strong> {{ lesson[5] or 'عام' }}</p>
+                <p><strong>عدد الأسئلة:</strong> {{ questions | length if questions else 0 }}</p>
+                <p><strong>تاريخ الإنشاء:</strong> {{ lesson[7] if lesson[7] else 'غير محدد' }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-line"></i> تقدمك</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-success" style="width: 0%" id="lessonProgress">0%</div>
+                </div>
+                <p class="mb-2">لم يتم إكمال الدرس بعد</p>
+                <button class="btn btn-success btn-sm" onclick="markAsCompleted()">
+                    <i class="fas fa-check"></i> تحديد كمكتمل
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Modal -->
+<div class="modal fade" id="quizModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">اختبار: {{ lesson[1] }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="quizContainer">
+                <!-- Quiz questions will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="alert alert-danger">
+    <h4><i class="fas fa-exclamation-triangle"></i> خطأ</h4>
+    <p>لم يتم العثور على الدرس المطلوب</p>
+    <a href="{{ url_for('lessons') }}" class="btn btn-primary">العودة للدروس</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.currentLessonId = {{ lesson[0] if lesson else 'null' }};
+
+function startLessonQuiz() {
+    $('#quizModal').modal('show');
+    
+    const questions = {{ questions | tojson if questions else '[]' }};
+    
+    if (questions.length === 0) {
+        document.getElementById('quizContainer').innerHTML = `
+            <div class="alert alert-warning text-center">
+                <h5>لا توجد أسئلة متاحة حالياً</h5>
+                <p>سيتم إضافة الأسئلة قريباً</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Convert questions to the format expected by QuizSystem
+    const formattedQuestions = questions.map(q => ({
+        question: q[2],
+        option_a: q[3],
+        option_b: q[4],
+        option_c: q[5],
+        option_d: q[6],
+        correct_answer: q[7]
+    }));
+    
+    quiz.startQuiz(formattedQuestions);
+}
+
+function markAsCompleted() {
+    fetch('/api/mark_lesson_completed', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            lesson_id: window.currentLessonId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('lessonProgress').style.width = '100%';
+            document.getElementById('lessonProgress').textContent = '100%';
+            showNotification('تم تحديد الدرس كمكتمل!', 'success');
+        }
+    });
+}
+</script>
+{% endblock %}
